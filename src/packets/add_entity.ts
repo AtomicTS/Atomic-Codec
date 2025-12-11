@@ -1,7 +1,7 @@
 export interface AddEntityPacket {
   unique_entity_id: bigint;
   runtime_entity_id: bigint;
-  entity_type: number;
+  entity_type: string;
   position: { x: number; y: number; z: number; };
   motion: { x: number; y: number; z: number; };
   rotation: { x: number; y: number; };

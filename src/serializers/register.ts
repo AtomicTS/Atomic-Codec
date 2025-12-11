@@ -660,7 +660,7 @@ PacketRegistry.register<AddEntityPacket>(
   (params) => ({
     unique_entity_id: params.unique_entity_id ?? 0n,
     runtime_entity_id: params.runtime_entity_id ?? 0n,
-    entity_type: params.entity_type ?? 0,
+    entity_type: params.entity_type ?? "",
     position: params.position ?? { x: 0, y: 0, z: 0 },
     motion: params.motion ?? { x: 0, y: 0, z: 0 },
     rotation: params.rotation ?? { x: 0, y: 0 },

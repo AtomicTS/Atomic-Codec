@@ -11,7 +11,7 @@ export class AddEntitySerializer implements PacketSerializer<AddEntityPacket> {
   encode(buf: BufferWriter, p: AddEntityPacket) {
     buf.writeZigZag64(p.unique_entity_id);
     buf.writeVarInt64(p.runtime_entity_id);
-    buf.writeVarInt(p.entity_type);
+    buf.writeString(p.entity_type);
     buf.writeFloatLE(p.position.x);
     buf.writeFloatLE(p.position.y);
     buf.writeFloatLE(p.position.z);
@@ -36,7 +36,7 @@ export class AddEntitySerializer implements PacketSerializer<AddEntityPacket> {
   decode(buf: BufferReader): AddEntityPacket {
     const unique_entity_id = buf.readZigZag64();
     const runtime_entity_id = buf.readVarInt64();
-    const entity_type = buf.readVarInt();
+    const entity_type = buf.readString();
     const position = readVec3(buf);
     const motion = readVec3(buf);
     const rotation = { x: buf.readFloatLE(), y: buf.readFloatLE() };
