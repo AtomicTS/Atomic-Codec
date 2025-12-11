@@ -33,7 +33,7 @@ export class AddItemEntitySerializer implements PacketSerializer<AddItemEntityPa
     const item = readItem(buf);
     const position = readVec3(buf);
     const motion = readVec3(buf);
-    const remainderLen = buf.remaining();
+    const remainderLen = Math.max(0, buf.remaining());
     let metadata_raw = Buffer.alloc(0);
     let from_fishing = false;
     if (remainderLen > 0) {

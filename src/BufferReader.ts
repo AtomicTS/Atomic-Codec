@@ -2,7 +2,8 @@ export class BufferReader {
   constructor(private buf: Buffer, private offset = 0) {}
 
   remaining() {
-    return this.buf.length - this.offset;
+    const rem = this.buf.length - this.offset;
+    return rem < 0 ? 0 : rem;
   }
 
   position() {
