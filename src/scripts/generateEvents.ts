@@ -4,7 +4,7 @@ import prettier from "prettier";
 
 const ROOT = path.resolve(__dirname, "..");
 const PACKETS_DIR = path.join(ROOT, "packets");
-const EVENTS_FILE = path.join(ROOT, "Events.d.ts");
+const EVENTS_FILE = path.join(ROOT, "Events.ts");
 
 const toPascal = (name: string) =>
   name
@@ -57,7 +57,7 @@ ${interfaceBody}
     }),
   );
 
-  console.log(`Generated Events.d.ts with ${entries.length} packet events.`);
+  console.log(`Generated Events.ts with ${entries.length} packet events.`);
 }
 
 main().catch((err) => {

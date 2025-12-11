@@ -44,7 +44,7 @@ import type { EmoteListPacket } from "./packets/emote_list";
 import type { EntityEventPacket } from "./packets/entity_event";
 import type { EntityPickRequestPacket } from "./packets/entity_pick_request";
 import type { EventPacket } from "./packets/event";
-import type { FilterTextPacketPacket } from "./packets/filter_text_packet";
+import type { FilterTextPacket } from "./packets/filter_text_packet";
 import type { GameRulesChangedPacket } from "./packets/game_rules_changed";
 import type { GuiDataPickItemPacket } from "./packets/gui_data_pick_item";
 import type { HurtArmorPacket } from "./packets/hurt_armor";
@@ -69,7 +69,7 @@ import type { MovePlayerPacket } from "./packets/move_player";
 import type { MultiplayerSettingsPacket } from "./packets/multiplayer_settings";
 import type { NetworkSettingsPacket } from "./packets/network_settings";
 import type { NetworkStackLatencyPacket } from "./packets/network_stack_latency";
-import type { ViolationWarningPacket } from "./packets/packet_violation_warning";
+import type { PacketViolationWarningPacket } from "./packets/packet_violation_warning";
 import type { PlayStatusPacket } from "./packets/play_status";
 import type { PlayerActionPacket } from "./packets/player_action";
 import type { PlayerArmorDamagePacket } from "./packets/player_armor_damage";
@@ -176,7 +176,7 @@ export interface Events {
   entity_event: (packet: EntityEventPacket) => void;
   entity_pick_request: (packet: EntityPickRequestPacket) => void;
   event: (packet: EventPacket) => void;
-  filter_text_packet: (packet: FilterTextPacketPacket) => void;
+  filter_text_packet: (packet: FilterTextPacket) => void;
   game_rules_changed: (packet: GameRulesChangedPacket) => void;
   gui_data_pick_item: (packet: GuiDataPickItemPacket) => void;
   hurt_armor: (packet: HurtArmorPacket) => void;
@@ -201,7 +201,7 @@ export interface Events {
   multiplayer_settings: (packet: MultiplayerSettingsPacket) => void;
   network_settings: (packet: NetworkSettingsPacket) => void;
   network_stack_latency: (packet: NetworkStackLatencyPacket) => void;
-  violation_warning: (packet: ViolationWarningPacket) => void;
+  violation_warning: (packet: PacketViolationWarningPacket) => void;
   play_status: (packet: PlayStatusPacket) => void;
   player_action: (packet: PlayerActionPacket) => void;
   player_armor_damage: (packet: PlayerArmorDamagePacket) => void;
@@ -269,6 +269,5 @@ export interface Events {
   session: () => void;
   close: () => void;
   error: () => void;
-  disconnect: () => void;
   connect_allowed: () => void;
 }
