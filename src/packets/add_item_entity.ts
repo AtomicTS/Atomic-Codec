@@ -11,6 +11,6 @@ export interface AddItemEntityPacket {
   position?: { x: number; y: number; z: number; };
   motion?: { x: number; y: number; z: number; };
   from_fishing?: boolean;
-  metadata_raw?: Buffer;
+  metadata_raw?: Buffer; // Raw entity metadata dictionary (terminated with 0xff)
   raw?: Buffer;
 }

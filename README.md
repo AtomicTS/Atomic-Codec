@@ -10,10 +10,18 @@ Atomic-Codec is a modern, strongly typed Bedrock network codec. It delivers clea
 ## Installation
 
 ```bash
-bun add atomic-codec
+yarn add atomic-codec
 # or
 npm install atomic-codec
 ```
+
+---
+
+## Development (Yarn + Turbo)
+
+- Install dependencies: `yarn install`
+- Type-check and build: `yarn turbo run build`
+- Type-check only: `yarn turbo run lint`
 
 ---
 

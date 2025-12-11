@@ -22,8 +22,10 @@ export class AddItemEntitySerializer implements PacketSerializer<AddItemEntityPa
     buf.writeFloatLE(vel.x);
     buf.writeFloatLE(vel.y);
     buf.writeFloatLE(vel.z);
+    // Metadata dictionary (terminated with 0xff sentinel)
     const meta = p.metadata_raw ?? Buffer.from([0xff]);
     buf.writeBuffer(meta);
+    // Is from fishing
     buf.writeBool(p.from_fishing ?? false);
   }
 
@@ -33,16 +35,26 @@ export class AddItemEntitySerializer implements PacketSerializer<AddItemEntityPa
     const item = readItem(buf);
     const position = readVec3(buf);
     const motion = readVec3(buf);
-    const remainderLen = Math.max(0, buf.remaining());
-    let metadata_raw = Buffer.alloc(0);
+
+    // Remaining bytes are metadata dictionary + bool flag.
+    const remainingLen = buf.remaining();
+    let metadata_raw: Buffer = Buffer.from([0xff]);
     let from_fishing = false;
-    if (remainderLen > 0) {
-      const rest = buf.readBytes(remainderLen);
-      if (rest.length > 0) {
-        metadata_raw = Buffer.from(rest.subarray(0, Math.max(0, rest.length - 1)));
-        from_fishing = !!rest[rest.length - 1];
+    if (remainingLen > 0) {
+      const remaining = buf.readBytes(remainingLen);
+      const sentinelIndex = remaining.indexOf(0xff);
+      if (sentinelIndex !== -1) {
+        const metaEnd = sentinelIndex + 1;
+        metadata_raw = remaining.subarray(0, metaEnd) as Buffer;
+        if (remaining.length > metaEnd) {
+          from_fishing = !!remaining[metaEnd];
+        }
+      } else {
+        // If no sentinel found, keep the raw bytes and default the flag.
+        metadata_raw = remaining as Buffer;
       }
     }
+
     return { entity_id_self, runtime_entity_id, item, position, motion, metadata_raw, from_fishing };
   }
 }
