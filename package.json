@@ -1,0 +1,27 @@
+{
+  "name": "atomic-codec",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "release": "bun tsc || true && git commit -m \"Prepare Release\" || true && npm version patch && git push && git push --tags && npm publish",
+    "release:full": "bun tsc || true && git commit -m \"Prepare Release\" || true && npm version minor && git push && git push --tags && npm publish"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "@types/bun": "latest",
+    "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {}
+}
