@@ -1,6 +1,6 @@
 {
   "name": "atomic-codec",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Atomic-Codec is a modern, strongly typed Bedrock network codec. It delivers clean packet models, safe encode/decode paths, and high-performance serialization tailored for Bedrock protocol work, with developer-friendly tooling to keep your networking code fast, organized, and predictable.",
   "keywords": [
     "serialization",
@@ -36,26 +36,21 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -p .",
-    "release": "bun tsc || true && git commit -m \"Prepare Release\" || true && npm version patch && git push && git push --tags && npm publish",
-    "release:full": "bun tsc || true && git commit -m \"Prepare Release\" || true && npm version minor && git push && git push --tags && npm publish"
+    "lint": "tsc --noEmit",
+    "check": "turbo run lint --filter=.",
+    "dev": "turbo run build --filter=.",
+    "release": "turbo run build --filter=. && yarn version --patch && git push && git push --tags && yarn publish --non-interactive",
+    "release:minor": "turbo run build --filter=. && yarn version --minor && git push && git push --tags && yarn publish --non-interactive"
   },
   "devDependencies": {
-    "@types/bun": "latest",
     "@types/node": "^22.13.5",
     "prettier": "^3.7.4",
+    "turbo": "^2.4.4",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "module": "./dist/index.js",
-  "turbo": {
-    "pipeline": {
-      "build": {
-        "outputs": [
-          "dist/**"
-        ]
-      }
-    }
-  }
+  "packageManager": "yarn@1.22.22"
 }
