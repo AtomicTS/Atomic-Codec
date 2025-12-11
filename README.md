@@ -19,7 +19,7 @@ npm install atomic-codec
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues and pull requests to improve Atomic Realms.
+Contributions are welcome! Feel free to open issues and pull requests to improve Atomic Codec.
 
 ---
 
