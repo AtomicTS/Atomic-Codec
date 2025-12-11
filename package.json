@@ -38,8 +38,9 @@
     "release:full": "bun tsc || true && git commit -m \"Prepare Release\" || true && npm version minor && git push && git push --tags && npm publish"
   },
   "devDependencies": {
-    "@types/node": "^22.13.5",
     "@types/bun": "latest",
+    "@types/node": "^22.13.5",
+    "prettier": "^3.7.4",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
