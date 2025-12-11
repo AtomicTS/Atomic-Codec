@@ -1,6 +1,6 @@
 {
   "name": "atomic-codec",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Atomic-Codec is a modern, strongly typed Bedrock network codec. It delivers clean packet models, safe encode/decode paths, and high-performance serialization tailored for Bedrock protocol work, with developer-friendly tooling to keep your networking code fast, organized, and predictable.",
   "keywords": [
     "serialization",
@@ -27,6 +27,9 @@
       "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -42,5 +45,14 @@
   "peerDependencies": {
     "typescript": "^5"
   },
-  "module": "./dist/index.js"
+  "module": "./dist/index.js",
+  "turbo": {
+    "pipeline": {
+      "build": {
+        "outputs": [
+          "dist/**"
+        ]
+      }
+    }
+  }
 }
