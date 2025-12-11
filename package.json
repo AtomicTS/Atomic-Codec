@@ -1,15 +1,34 @@
 {
   "name": "atomic-codec",
+  "version": "1.0.0",
+  "description": "Atomic-Codec is a modern, strongly typed Bedrock network codec. It delivers clean packet models, safe encode/decode paths, and high-performance serialization tailored for Bedrock protocol work, with developer-friendly tooling to keep your networking code fast, organized, and predictable.",
+  "keywords": [
+    "serialization",
+    "packets",
+    "minecraft",
+    "bedrock",
+    "typescript",
+    "protocol"
+  ],
+  "homepage": "https://github.com/Serial-V/Atomic-Codec#readme",
+  "bugs": {
+    "url": "https://github.com/Serial-V/Atomic-Codec/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Serial-V/Atomic-Codec.git"
+  },
+  "license": "MIT",
+  "author": "Serial-V",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -p .",
     "release": "bun tsc || true && git commit -m \"Prepare Release\" || true && npm version patch && git push && git push --tags && npm publish",
@@ -23,5 +42,5 @@
   "peerDependencies": {
     "typescript": "^5"
   },
-  "dependencies": {}
+  "module": "./dist/index.js"
 }
