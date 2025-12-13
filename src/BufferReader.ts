@@ -1,5 +1,5 @@
 export class BufferReader {
-  constructor(private buf: Buffer, private offset = 0) {}
+  constructor(private buf: Buffer, private offset = 0) { }
 
   remaining() {
     const rem = this.buf.length - this.offset;
@@ -10,63 +10,81 @@ export class BufferReader {
     return this.offset;
   }
 
-  readBool() { return this.buf[this.offset++] === 1; }
+  private ensure(size: number, label: string) {
+    if (this.offset < 0 || this.offset + size > this.buf.length) {
+      throw new RangeError(
+        `BufferReader OOB in ${label}: offset=${this.offset} need=${size} len=${this.buf.length} remaining=${this.remaining()}`,
+      );
+    }
+  }
+
+  readBool() { this.ensure(1, "readBool"); return this.buf[this.offset++] === 1; }
 
   readUInt8() {
+    this.ensure(1, "readUInt8");
     const v = this.buf.readUInt8(this.offset);
     this.offset += 1;
     return v;
   }
 
   readUInt16LE() {
+    this.ensure(2, "readUInt16LE");
     const v = this.buf.readUInt16LE(this.offset);
     this.offset += 2;
     return v;
   }
 
   readInt16LE() {
+    this.ensure(2, "readInt16LE");
     const v = this.buf.readInt16LE(this.offset);
     this.offset += 2;
     return v;
   }
 
   readUInt16BE() {
+    this.ensure(2, "readUInt16BE");
     const v = this.buf.readUInt16BE(this.offset);
     this.offset += 2;
     return v;
   }
 
   readInt32LE() {
+    this.ensure(4, "readInt32LE");
     const v = this.buf.readInt32LE(this.offset);
     this.offset += 4;
     return v;
   }
 
   readUInt32LE() {
+    this.ensure(4, "readUInt32LE");
     const v = this.buf.readUInt32LE(this.offset);
     this.offset += 4;
     return v;
   }
 
   readInt32BE() {
+    this.ensure(4, "readInt32BE");
     const v = this.buf.readInt32BE(this.offset);
     this.offset += 4;
     return v;
   }
 
   readFloatLE() {
+    this.ensure(4, "readFloatLE");
     const v = this.buf.readFloatLE(this.offset);
     this.offset += 4;
     return v;
   }
 
   readFloatBE() {
+    this.ensure(4, "readFloatBE");
     const v = this.buf.readFloatBE(this.offset);
     this.offset += 4;
     return v;
   }
 
   readBytes(length: number) {
+    this.ensure(length, "readBytes");
     const slice = this.buf.subarray(this.offset, this.offset + length);
     this.offset += length;
     return slice;
@@ -75,9 +93,11 @@ export class BufferReader {
   readVarInt() {
     let num = 0, shift = 0, byte;
     do {
+      this.ensure(1, "readVarInt");
       byte = this.buf[this.offset++];
       num |= (byte & 0x7f) << shift;
       shift += 7;
+      if (shift > 35) throw new RangeError("BufferReader readVarInt overflow");
     } while (byte & 0x80);
     return num;
   }
@@ -92,9 +112,11 @@ export class BufferReader {
     let shift = 0n;
     let byte: number;
     do {
+      this.ensure(1, "readVarInt64");
       byte = this.buf[this.offset++];
       result |= BigInt(byte & 0x7f) << shift;
       shift += 7n;
+      if (shift > 70n) throw new RangeError("BufferReader readVarInt64 overflow");
     } while (byte & 0x80);
     return result;
   }
@@ -106,6 +128,7 @@ export class BufferReader {
 
   readString() {
     const len = this.readVarInt();
+    this.ensure(len, "readString");
     const value = this.buf.slice(this.offset, this.offset + len).toString("utf8");
     this.offset += len;
     return value;
@@ -113,12 +136,14 @@ export class BufferReader {
 
   readLittleString() {
     const len = this.readInt32LE();
+    this.ensure(len, "readLittleString");
     const value = this.buf.slice(this.offset, this.offset + len).toString("utf8");
     this.offset += len;
     return value;
   }
 
   readUuid() {
+    this.ensure(16, "readUuid");
     const slice = this.buf.subarray(this.offset, this.offset + 16);
     this.offset += 16;
     const hex = slice.toString("hex");
@@ -126,12 +151,14 @@ export class BufferReader {
   }
 
   readInt64LE() {
+    this.ensure(8, "readInt64LE");
     const v = this.buf.readBigInt64LE(this.offset);
     this.offset += 8;
     return v;
   }
 
   readUInt64LE() {
+    this.ensure(8, "readUInt64LE");
     const v = this.buf.readBigUInt64LE(this.offset);
     this.offset += 8;
     return v;

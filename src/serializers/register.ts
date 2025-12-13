@@ -98,6 +98,7 @@ import { ResourcePackClientResponsePacket } from "../packets/resource_pack_clien
 import { ResourcePackStackPacket } from "../packets/resource_pack_stack";
 import { ResourcePacksInfoPacket } from "../packets/resource_packs_info";
 import { ServerStatsPacket } from "../packets/server_stats";
+import { ServerboundLoadingScreenPacket } from "../packets/serverbound_loading_screen";
 import { ServerToClientHandshakePacket } from "../packets/server_to_client_handshake";
 import { SetLocalPlayerAsInitializedPacket } from "../packets/set_local_player_as_initialized";
 import { StartGamePacket } from "../packets/start_game";
@@ -222,6 +223,7 @@ import { ResourcePackClientResponseSerializer } from "./resource_pack_client_res
 import { ResourcePackStackSerializer } from "./resource_pack_stack";
 import { ResourcePacksInfoSerializer } from "./resource_packs_info";
 import { ServerStatsSerializer } from "./server_stats";
+import { ServerboundLoadingScreenSerializer } from "./serverbound_loading_screen";
 import { ServerToClientHandshakeSerializer } from "./server_to_client_handshake";
 import { SetLocalPlayerAsInitializedSerializer } from "./set_local_player_as_initialized";
 import { StartGameSerializer } from "./start_game";
@@ -644,7 +646,6 @@ PacketRegistry.register<AddPlayerPacket>(
   (params) => ({
     uuid: params.uuid ?? "00000000-0000-0000-0000-000000000000",
     username: params.username ?? "",
-    unique_entity_id: params.unique_entity_id ?? 0n,
     runtime_entity_id: params.runtime_entity_id ?? 0n,
     platform_chat_id: params.platform_chat_id ?? "",
     position: params.position ?? { x: 0, y: 0, z: 0 },
@@ -1862,5 +1863,15 @@ PacketRegistry.register<ServerStatsPacket>(
   (params) => ({
     server_time: params.server_time ?? 0,
     network_time: params.network_time ?? 0,
+  }),
+);
+
+PacketRegistry.register<ServerboundLoadingScreenPacket>(
+  "serverbound_loading_screen",
+  PACKET_IDS.serverbound_loading_screen,
+  new ServerboundLoadingScreenSerializer(),
+  (params) => ({
+    type: params.type ?? 0,
+    loading_screen_id: params.loading_screen_id,
   }),
 );

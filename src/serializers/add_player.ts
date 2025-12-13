@@ -11,7 +11,6 @@ export class AddPlayerSerializer implements PacketSerializer<AddPlayerPacket> {
   encode(buf: BufferWriter, p: AddPlayerPacket) {
     buf.writeUuid(p.uuid);
     buf.writeString(p.username);
-    buf.writeZigZag64(p.unique_entity_id);
     buf.writeVarInt64(p.runtime_entity_id);
     buf.writeString(p.platform_chat_id ?? "");
     buf.writeFloatLE(p.position.x);
@@ -29,7 +28,6 @@ export class AddPlayerSerializer implements PacketSerializer<AddPlayerPacket> {
   decode(buf: BufferReader): AddPlayerPacket {
     const uuid = buf.readUuid();
     const username = buf.readString();
-    const unique_entity_id = buf.readZigZag64();
     const runtime_entity_id = buf.readVarInt64();
     const platform_chat_id = buf.readString();
     const position = readVec3(buf);
@@ -40,7 +38,6 @@ export class AddPlayerSerializer implements PacketSerializer<AddPlayerPacket> {
     return {
       uuid,
       username,
-      unique_entity_id,
       runtime_entity_id,
       platform_chat_id,
       position,

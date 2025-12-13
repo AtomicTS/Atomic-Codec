@@ -34,6 +34,9 @@
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "dependencies": {
+    "prismarine-nbt": "^2.7.0"
+  },
   "scripts": {
     "build": "tsc -p .",
     "lint": "tsc --noEmit",
