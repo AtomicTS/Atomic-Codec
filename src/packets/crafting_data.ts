@@ -4,4 +4,5 @@ export interface CraftingDataPacket {
   potion_container_recipes: Buffer[];
   material_reducers: Buffer[];
   clear_recipes: boolean;
+  raw?: Buffer;
 }

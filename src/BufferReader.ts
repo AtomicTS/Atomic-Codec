@@ -91,15 +91,23 @@ export class BufferReader {
   }
 
   readVarInt() {
-    let num = 0, shift = 0, byte;
-    do {
-      this.ensure(1, "readVarInt");
-      byte = this.buf[this.offset++];
-      num |= (byte & 0x7f) << shift;
+    let num = 0;
+    let shift = 0;
+
+    for (let i = 0; i < 5; i++) {
+      if (this.offset >= this.buf.length) {
+        throw new RangeError(`OOB in readVarInt: offset=${this.offset} len=${this.buf.length}`);
+      }
+
+      const b = this.buf[this.offset++];
+      num |= (b & 0x7f) << shift;
+
+      if ((b & 0x80) === 0) return num >>> 0;
+
       shift += 7;
-      if (shift > 35) throw new RangeError("BufferReader readVarInt overflow");
-    } while (byte & 0x80);
-    return num;
+    }
+
+    throw new RangeError("readVarInt overflow");
   }
 
   readZigZag32() {
