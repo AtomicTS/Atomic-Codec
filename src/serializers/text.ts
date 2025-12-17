@@ -1,56 +1,35 @@
 import { BufferReader } from "../BufferReader";
 import { BufferWriter } from "../BufferWriter";
-import { TextPacket } from "../packets/text";
+import { TextCategory, TextPacket, TextType } from "../packets/text";
 import { PacketSerializer } from "../PacketSerializer";
 
-export const TEXT_TYPE_MAP: Record<number, string> = {
-  0: "raw",
-  1: "chat",
-  2: "translation",
-  3: "popup",
-  4: "jukebox_popup",
-  5: "tip",
-  6: "system",
-  7: "whisper",
-  8: "announcement",
-  9: "json_whisper",
-  10: "json",
-  11: "json_announcement"
-};
+const TYPES: TextType[] = [
+  "raw",
+  "chat",
+  "translation",
+  "popup",
+  "jukebox_popup",
+  "tip",
+  "system",
+  "whisper",
+  "announcement",
+  "json_whisper",
+  "json",
+  "json_announcement",
+];
 
-export const TEXT_TYPE_INV: Record<string, number> = {};
-for (const [k, v] of Object.entries(TEXT_TYPE_MAP)) {
-  TEXT_TYPE_INV[v] = parseInt(k);
-}
-
-export const TEXT_CATEGORY_MAP: Record<number, string> = {
-  0: "message_only",
-  1: "author_and_message",
-  2: "message_and_params"
-};
-
-export const TEXT_CATEGORY_INV: Record<string, number> = {
-  message_only: 0,
-  author_and_message: 1,
-  message_and_params: 2
-};
+const CATEGORIES: TextCategory[] = ["message_only", "author_and_message", "message_and_params"];
 
 export class TextSerializer implements PacketSerializer<TextPacket> {
   encode(buf: BufferWriter, p: TextPacket) {
-    //Translation
-    buf.writeBool(p.needs_translation);
+    buf.writeBool(!!p.needs_translation);
+    const categoryIndex = typeof p.category === "number" ? p.category : CATEGORIES.indexOf(p.category ?? "message_only");
+    buf.writeUInt8(categoryIndex < 0 ? 0 : categoryIndex);
 
-    //Category
-    let catId = 0;
-    if (typeof p.category === "string") {
-      catId = TEXT_CATEGORY_INV[p.category] ?? 0;
-    } else {
-      catId = p.category ?? 0;
-    }
-    buf.writeUInt8(catId);
+    const typeIndex = typeof p.type === "number" ? p.type : TYPES.indexOf(p.type);
+    const safeType = typeIndex < 0 ? 0 : typeIndex;
 
-    //Switch on Category
-    switch (catId) {
+    switch (categoryIndex) {
       case 0: // message_only
         buf.writeString(p.name_raw ?? "");
         buf.writeString(p.name_tip ?? "");
@@ -58,38 +37,26 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
         buf.writeString(p.name_object_whisper ?? "");
         buf.writeString(p.name_object_announcement ?? "");
         buf.writeString(p.name_object ?? "");
-
-        this.writeType(buf, p.type);
-        buf.writeString(p.message);
+        buf.writeUInt8(safeType);
+        buf.writeString(p.message ?? "");
         break;
-
       case 1: // author_and_message
         buf.writeString(p.name_chat ?? "");
         buf.writeString(p.name_whisper ?? "");
         buf.writeString(p.name_announcement ?? "");
-
-        this.writeType(buf, p.type);
+        buf.writeUInt8(safeType);
         buf.writeString(p.source_name ?? "");
-        buf.writeString(p.message);
+        buf.writeString(p.message ?? "");
         break;
-
       case 2: // message_and_params
+      default:
         buf.writeString(p.name_translate ?? "");
         buf.writeString(p.name_popup ?? "");
         buf.writeString(p.name_jukebox_popup ?? "");
-
-        this.writeType(buf, p.type);
-        buf.writeString(p.message);
-
-        // Array of strings (parameters)
-        const params = p.parameters ?? [];
-        buf.writeVarInt(params.length);
-        for (const param of params) {
-          buf.writeString(param);
-        }
-        break;
-
-      default:
+        buf.writeUInt8(safeType);
+        buf.writeString(p.message ?? "");
+        buf.writeVarInt(p.parameters?.length ?? 0);
+        for (const param of p.parameters ?? []) buf.writeString(param);
         break;
     }
 
@@ -105,77 +72,71 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
 
   decode(buf: BufferReader): TextPacket {
     const needs_translation = buf.readBool();
+    const categoryIndex = buf.readUInt8();
+    const category = CATEGORIES[categoryIndex] ?? categoryIndex;
 
-    const catId = buf.readUInt8();
-    const category = TEXT_CATEGORY_MAP[catId] ?? catId;
+    let typeIndex = 0;
+    let type: TextType | number = 0;
+    let message = "";
+    let parameters: string[] | undefined;
+    let source_name: string | undefined;
+    let names: Partial<TextPacket> = {};
 
-    let p: Partial<TextPacket> = { needs_translation, category };
-
-    switch (catId) {
-      case 0: // message_only
-        p.name_raw = buf.readString();
-        p.name_tip = buf.readString();
-        p.name_system = buf.readString();
-        p.name_object_whisper = buf.readString();
-        p.name_object_announcement = buf.readString();
-        p.name_object = buf.readString();
-
-        p.type = this.readType(buf);
-        p.message = buf.readString();
+    switch (categoryIndex) {
+      case 0: {
+        const name_raw = buf.readString();
+        const name_tip = buf.readString();
+        const name_system = buf.readString();
+        const name_object_whisper = buf.readString();
+        const name_object_announcement = buf.readString();
+        const name_object = buf.readString();
+        typeIndex = buf.readUInt8();
+        message = buf.readString();
+        names = { name_raw, name_tip, name_system, name_object_whisper, name_object_announcement, name_object };
         break;
-
-      case 1: // author_and_message
-        p.name_chat = buf.readString();
-        p.name_whisper = buf.readString();
-        p.name_announcement = buf.readString();
-
-        p.type = this.readType(buf);
-        p.source_name = buf.readString();
-        p.message = buf.readString();
+      }
+      case 1: {
+        const name_chat = buf.readString();
+        const name_whisper = buf.readString();
+        const name_announcement = buf.readString();
+        typeIndex = buf.readUInt8();
+        source_name = buf.readString();
+        message = buf.readString();
+        names = { name_chat, name_whisper, name_announcement };
         break;
-
-      case 2: // message_and_params
-        p.name_translate = buf.readString();
-        p.name_popup = buf.readString();
-        p.name_jukebox_popup = buf.readString();
-
-        p.type = this.readType(buf);
-        p.message = buf.readString();
-
-        const paramCount = buf.readVarInt();
-        const parameters: string[] = [];
-        for (let i = 0; i < paramCount; i++) {
-          parameters.push(buf.readString());
-        }
-        p.parameters = parameters;
+      }
+      case 2:
+      default: {
+        const name_translate = buf.readString();
+        const name_popup = buf.readString();
+        const name_jukebox_popup = buf.readString();
+        typeIndex = buf.readUInt8();
+        message = buf.readString();
+        const count = buf.readVarInt();
+        parameters = [];
+        for (let i = 0; i < count; i++) parameters.push(buf.readString());
+        names = { name_translate, name_popup, name_jukebox_popup };
         break;
+      }
     }
 
-    p.xuid = buf.readString();
-    p.platform_chat_id = buf.readString();
+    type = TYPES[typeIndex] ?? typeIndex;
+    const xuid = buf.readString();
+    const platform_chat_id = buf.readString();
+    const has_filtered = buf.readBool();
+    const filtered_message = has_filtered ? buf.readString() : undefined;
 
-    const hasFiltered = buf.readBool();
-    if (hasFiltered) {
-      p.filtered_message = buf.readString();
-    }
-
-    return p as TextPacket;
-  }
-
-  private writeType(buf: BufferWriter, type: number | string) {
-    let typeId = 0;
-    if (typeof type === "string") {
-      // FIX: Default to 0 ('raw') if empty string to prevent "Found: ''" error
-      if (type === "") typeId = 0;
-      else typeId = TEXT_TYPE_INV[type] ?? 0;
-    } else {
-      typeId = type ?? 0;
-    }
-    buf.writeUInt8(typeId);
-  }
-
-  private readType(buf: BufferReader): string | number {
-    const typeId = buf.readUInt8();
-    return TEXT_TYPE_MAP[typeId] ?? typeId;
+    return {
+      category,
+      type,
+      needs_translation,
+      source_name,
+      message,
+      parameters,
+      xuid,
+      platform_chat_id,
+      filtered_message,
+      ...names,
+    };
   }
 }
