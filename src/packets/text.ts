@@ -16,7 +16,7 @@ export type TextCategory = "message_only" | "author_and_message" | "message_and_
 
 export interface TextPacket {
   category?: TextCategory;
-  type: TextType | number;
+  type: TextType;
   needs_translation: boolean;
   source_name?: string;
   message: string;

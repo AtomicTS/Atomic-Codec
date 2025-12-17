@@ -44,7 +44,7 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
         buf.writeString(p.name_chat ?? "");
         buf.writeString(p.name_whisper ?? "");
         buf.writeString(p.name_announcement ?? "");
-        buf.writeUInt8(safeType);
+        buf.writeString("chat");
         buf.writeString(p.source_name ?? "");
         buf.writeString(p.message ?? "");
         break;
@@ -59,6 +59,7 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
         for (const param of p.parameters ?? []) buf.writeString(param);
         break;
     }
+
 
     buf.writeString(p.xuid ?? "");
     buf.writeString(p.platform_chat_id ?? "");
