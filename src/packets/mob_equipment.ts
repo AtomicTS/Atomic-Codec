@@ -5,5 +5,5 @@ export interface MobEquipmentPacket {
   item: ItemStack;
   slot: number;
   selected_slot: number;
-  window_id: number;
+  window_id: number | string;
 }
