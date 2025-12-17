@@ -37,14 +37,14 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
         buf.writeString(p.name_object_whisper ?? "");
         buf.writeString(p.name_object_announcement ?? "");
         buf.writeString(p.name_object ?? "");
-        buf.writeUInt8(safeType);
+        buf.writeString(TYPES[safeType] ?? "chat");
         buf.writeString(p.message ?? "");
         break;
       case 1: // author_and_message
         buf.writeString(p.name_chat ?? "");
         buf.writeString(p.name_whisper ?? "");
         buf.writeString(p.name_announcement ?? "");
-        buf.writeString("chat");
+        buf.writeString(TYPES[safeType] ?? "chat");
         buf.writeString(p.source_name ?? "");
         buf.writeString(p.message ?? "");
         break;
@@ -53,7 +53,7 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
         buf.writeString(p.name_translate ?? "");
         buf.writeString(p.name_popup ?? "");
         buf.writeString(p.name_jukebox_popup ?? "");
-        buf.writeUInt8(safeType);
+        buf.writeString(TYPES[safeType] ?? "chat");
         buf.writeString(p.message ?? "");
         buf.writeVarInt(p.parameters?.length ?? 0);
         for (const param of p.parameters ?? []) buf.writeString(param);
