@@ -22,50 +22,48 @@ const CATEGORIES: TextCategory[] = ["message_only", "author_and_message", "messa
 
 export class TextSerializer implements PacketSerializer<TextPacket> {
   encode(buf: BufferWriter, p: TextPacket) {
-    buf.writeBool(!!p.needs_translation);
     const categoryIndex = typeof p.category === "number" ? p.category : CATEGORIES.indexOf(p.category ?? "message_only");
-    buf.writeUInt8(categoryIndex < 0 ? 0 : categoryIndex);
-
     const typeIndex = typeof p.type === "number" ? p.type : TYPES.indexOf(p.type);
-    const safeType = typeIndex < 0 ? 0 : typeIndex;
+
+    buf.writeBool(!!p.needs_translation);
+    buf.writeVarInt(categoryIndex);
 
     switch (categoryIndex) {
       case 0: // message_only
-        buf.writeString(p.name_raw ?? "");
-        buf.writeString(p.name_tip ?? "");
-        buf.writeString(p.name_system ?? "");
-        buf.writeString(p.name_object_whisper ?? "");
-        buf.writeString(p.name_object_announcement ?? "");
-        buf.writeString(p.name_object ?? "");
-        buf.writeString(TYPES[safeType] ?? "chat");
+        buf.writeString("raw");
+        buf.writeString("tip");
+        buf.writeString("systemMessage");
+        buf.writeString("textObjectWhisper");
+        buf.writeString("textObjectAnnouncement");
+        buf.writeString("textObject");
+        buf.writeUInt8(typeIndex);
         buf.writeString(p.message ?? "");
         break;
       case 1: // author_and_message
-        buf.writeString(p.name_chat ?? "");
-        buf.writeString(p.name_whisper ?? "");
-        buf.writeString(p.name_announcement ?? "");
-        buf.writeString(TYPES[safeType] ?? "chat");
+        buf.writeString("chat");
+        buf.writeString("whisper");
+        buf.writeString("announcement");
+        buf.writeUInt8(typeIndex);
         buf.writeString(p.source_name ?? "");
         buf.writeString(p.message ?? "");
         break;
       case 2: // message_and_params
       default:
-        buf.writeString(p.name_translate ?? "");
-        buf.writeString(p.name_popup ?? "");
-        buf.writeString(p.name_jukebox_popup ?? "");
-        buf.writeString(TYPES[safeType] ?? "chat");
+        buf.writeString("translation");
+        buf.writeString("popup");
+        buf.writeString("jukeboxPopup");
+        buf.writeUInt8(typeIndex);
         buf.writeString(p.message ?? "");
         buf.writeVarInt(p.parameters?.length ?? 0);
         for (const param of p.parameters ?? []) buf.writeString(param);
         break;
     }
 
-
     buf.writeString(p.xuid ?? "");
     buf.writeString(p.platform_chat_id ?? "");
     if (p.filtered_message !== undefined) {
       buf.writeBool(true);
-      buf.writeString(p.filtered_message);
+      // buf.writeString(p.filtered_message);
     } else {
       buf.writeBool(false);
     }

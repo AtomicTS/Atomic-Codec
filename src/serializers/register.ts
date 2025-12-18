@@ -622,6 +622,7 @@ PacketRegistry.register<TextPacket>(
   PACKET_IDS.text,
   new TextSerializer(),
   (params) => ({
+    category: params.category ?? "message_only",
     type: params.type ?? "raw",
     needs_translation: params.needs_translation ?? false,
     source_name: params.source_name ?? "",
