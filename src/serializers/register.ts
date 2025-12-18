@@ -1287,7 +1287,28 @@ PacketRegistry.register<CommandOutputPacket>(
   "command_output",
   PACKET_IDS.command_output,
   new CommandOutputSerializer(),
-  (params) => ({ raw: params.raw ?? Buffer.alloc(0) }),
+  (params) =>
+    Object.assign(new CommandOutputPacket(), {
+      uuid: params.uuid ?? "00000000-0000-0000-0000-000000000000",
+      requestId: params.requestId ?? "",
+      playerEntityId: params.playerEntityId ?? 0n,
+      raw: params.raw ?? Buffer.alloc(0)
+    }),
+);
+
+PacketRegistry.register<CommandRequestPacket>(
+  "command_request",
+  PACKET_IDS.command_request,
+  new CommandRequestSerializer(),
+  (params) =>
+    Object.assign(new CommandRequestPacket(), {
+      command: params.command ?? "",
+      origin: params.origin.origin ?? "Player",
+      uuid: params.origin.uuid ?? "00000000-0000-0000-0000-000000000000",
+      requestId: params.origin.requestId ?? "",
+      playerEntityId: params.origin.playerEntityId ?? 0n,
+      internal: params.internal ?? false,
+    }),
 );
 
 PacketRegistry.register<TransferPacket>(
@@ -1594,20 +1615,6 @@ PacketRegistry.register<DeathInfoPacket>(
   PACKET_IDS.death_info,
   new DeathInfoSerializer(),
   (params) => ({ cause: params.cause ?? "", messages: params.messages ?? [] }),
-);
-
-PacketRegistry.register<CommandRequestPacket>(
-  "command_request",
-  PACKET_IDS.command_request,
-  new CommandRequestSerializer(),
-  (params) =>
-    Object.assign(new CommandRequestPacket(), {
-      command: params.command ?? "",
-      uuid: params.uuid ?? "00000000-0000-0000-0000-000000000000",
-      requestId: params.requestId ?? "",
-      playerEntityId: params.playerEntityId ?? 0n,
-      internal: params.internal ?? false,
-    }),
 );
 
 PacketRegistry.register<SetLocalPlayerAsInitializedPacket>(

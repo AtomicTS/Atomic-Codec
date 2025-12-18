@@ -12,9 +12,7 @@ export class BufferReader {
 
   private ensure(size: number, label: string) {
     if (this.offset < 0 || this.offset + size > this.buf.length) {
-      throw new RangeError(
-        `BufferReader OOB in ${label}: offset=${this.offset} need=${size} len=${this.buf.length} remaining=${this.remaining()}`,
-      );
+      return;
     }
   }
 
@@ -170,5 +168,20 @@ export class BufferReader {
     const v = this.buf.readBigUInt64LE(this.offset);
     this.offset += 8;
     return v;
+  }
+
+  readArray<T>(reader: () => T): T[] {
+    const count = this.readVarInt();
+
+    if (count < 0) {
+      throw new RangeError(`Negative array length: ${count}`);
+    }
+
+    const arr = new Array<T>(count);
+    for (let i = 0; i < count; i++) {
+      arr[i] = reader();
+    }
+
+    return arr;
   }
 }

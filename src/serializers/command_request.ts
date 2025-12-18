@@ -1,6 +1,6 @@
-import { CommandRequestPacket } from "../packets/command_request";
 import { BufferReader } from "../BufferReader";
 import { BufferWriter } from "../BufferWriter";
+import { CommandRequestPacket } from "../packets/command_request";
 import { PacketSerializer } from "../PacketSerializer";
 
 export class CommandRequestSerializer implements PacketSerializer<CommandRequestPacket> {
