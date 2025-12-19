@@ -624,7 +624,7 @@ PacketRegistry.register<TextPacket>(
   (params) => ({
     category: params.category ?? "message_only",
     type: params.type ?? "raw",
-    needs_translation: params.needs_translation ?? false,
+    isLocalized: params.isLocalized ?? false,
     source_name: params.source_name ?? "",
     message: params.message ?? "",
     parameters: params.parameters ?? [],
@@ -1016,10 +1016,10 @@ PacketRegistry.register<AnimatePacket>(
   PACKET_IDS.animate,
   new AnimateSerializer(),
   (params) => ({
-    action_id: params.action_id ?? 0,
-    runtime_entity_id: params.runtime_entity_id ?? 0n,
+    type: params.type ?? 1,
+    actorRuntimeId: params.actorRuntimeId ?? 0n,
     data: params.data ?? 0,
-    swing_source: params.swing_source ?? 0,
+    swingSourceType: params.swingSourceType ?? "None"
   }),
 );
 

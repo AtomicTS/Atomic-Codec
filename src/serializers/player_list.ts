@@ -1,26 +1,32 @@
-import { PersonalPiece, PieceTintColor, PlayerListPacket, Skin, SkinAnimation, SkinImage } from "../packets/player_list";
 import { BufferReader } from "../BufferReader";
 import { BufferWriter } from "../BufferWriter";
+import { PersonalPiece, PieceTintColor, PlayerListPacket, Skin, SkinAnimation, SkinImage } from "../packets/player_list";
 import { PacketSerializer } from "../PacketSerializer";
 
 export class PlayerListSerializer implements PacketSerializer<PlayerListPacket> {
   encode(buf: BufferWriter, p: PlayerListPacket) {
-    buf.writeUInt8(typeof p.type === "number" ? p.type : p.type === "remove" ? 1 : 0);
     buf.writeVarInt(p.records.length);
-    // For brevity, when encoding we only support remove/add with minimal fields
+
+    if (p.type == "remove") {
+      for (const record of p.records) {
+        buf.writeUuid(record.uuid);
+      }
+
+      return;
+    }
+
     for (const r of p.records) {
       buf.writeUuid(r.uuid);
-      if (p.type === "add" || p.type === 0) {
-        buf.writeZigZag64(r.entity_unique_id ?? 0n);
-        buf.writeString(r.username ?? "");
-        buf.writeString(r.xbox_user_id ?? "");
-        buf.writeString(r.platform_chat_id ?? "");
-        buf.writeInt32LE(r.build_platform ?? 0);
-        // Skin blob passthrough not supported on encode without raw
-        const skinBuf = r.skin?.skin_image?.data ?? Buffer.alloc(0);
-        buf.writeVarInt(skinBuf.length);
-        buf.writeBuffer(skinBuf);
-      }
+
+      buf.writeZigZag64(r.entity_unique_id ?? 0n);
+      buf.writeString(r.username ?? "");
+      buf.writeString(r.xbox_user_id ?? "");
+      buf.writeString(r.platform_chat_id ?? "");
+      buf.writeInt32LE(r.build_platform ?? 0);
+      // Skin blob passthrough not supported on encode without raw
+      const skinBuf = r.skin?.skin_image?.data ?? Buffer.alloc(0);
+      buf.writeVarInt(skinBuf.length);
+      buf.writeBuffer(skinBuf);
     }
   }
 

@@ -1,17 +1,26 @@
-export type AnimateAction =
-  | "none"
-  | "swing_arm"
-  | "unknown"
-  | "wake_up"
-  | "critical_hit"
-  | "magic_critical_hit"
-  | "row_right"
-  | "row_left"
-  | number;
+export enum AnimateType {
+  NoAction,
+  SwingArm,
+  WakeUp,
+  CriticalHit,
+  MagicCriticalHit
+}
+
+export enum AnimateSwingSourceType {
+  None = "None",
+  Build = "Build",
+  Mine = "Mine",
+  Interact = "Interact",
+  Attack = "Attack",
+  UseItem = "UseItem",
+  ThrowItem = "ThrowItem",
+  DropItem = "DropItem",
+  Event = "Event"
+}
 
 export interface AnimatePacket {
-  action_id: AnimateAction;
-  runtime_entity_id: bigint;
+  type: AnimateType;
+  actorRuntimeId: bigint;
   data: number;
-  swing_source: number;
+  swingSourceType: AnimateSwingSourceType;
 }

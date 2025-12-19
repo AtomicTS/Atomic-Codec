@@ -1,6 +1,6 @@
-import { PlayerSkinPacket } from "../packets/player_skin";
 import { BufferReader } from "../BufferReader";
 import { BufferWriter } from "../BufferWriter";
+import { PlayerSkinPacket } from "../packets/player_skin";
 import { PacketSerializer } from "../PacketSerializer";
 
 export class PlayerSkinSerializer implements PacketSerializer<PlayerSkinPacket> {

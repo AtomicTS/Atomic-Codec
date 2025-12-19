@@ -25,8 +25,8 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
     const categoryIndex = typeof p.category === "number" ? p.category : CATEGORIES.indexOf(p.category ?? "message_only");
     const typeIndex = typeof p.type === "number" ? p.type : TYPES.indexOf(p.type);
 
-    buf.writeBool(!!p.needs_translation);
-    buf.writeVarInt(categoryIndex);
+    buf.writeBool(!!p.isLocalized);
+    buf.writeUInt8(categoryIndex);
 
     switch (categoryIndex) {
       case 0: // message_only
@@ -70,7 +70,7 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
   }
 
   decode(buf: BufferReader): TextPacket {
-    const needs_translation = buf.readBool();
+    const isLocalized = buf.readBool();
     const categoryIndex = buf.readUInt8();
     const category = CATEGORIES[categoryIndex] ?? categoryIndex;
 
@@ -79,42 +79,33 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
     let message = "";
     let parameters: string[] | undefined;
     let source_name: string | undefined;
-    let names: Partial<TextPacket> = {};
 
     switch (categoryIndex) {
       case 0: {
-        const name_raw = buf.readString();
-        const name_tip = buf.readString();
-        const name_system = buf.readString();
-        const name_object_whisper = buf.readString();
-        const name_object_announcement = buf.readString();
-        const name_object = buf.readString();
+        for (let i = 0; i < 6; i++) buf.readString();
+
         typeIndex = buf.readUInt8();
         message = buf.readString();
-        names = { name_raw, name_tip, name_system, name_object_whisper, name_object_announcement, name_object };
         break;
       }
       case 1: {
-        const name_chat = buf.readString();
-        const name_whisper = buf.readString();
-        const name_announcement = buf.readString();
+        for (let i = 0; i < 3; i++) buf.readString();
+
         typeIndex = buf.readUInt8();
         source_name = buf.readString();
         message = buf.readString();
-        names = { name_chat, name_whisper, name_announcement };
         break;
       }
       case 2:
       default: {
-        const name_translate = buf.readString();
-        const name_popup = buf.readString();
-        const name_jukebox_popup = buf.readString();
+        for (let i = 0; i < 3; i++) buf.readString();
+
         typeIndex = buf.readUInt8();
         message = buf.readString();
-        const count = buf.readVarInt();
         parameters = [];
-        for (let i = 0; i < count; i++) parameters.push(buf.readString());
-        names = { name_translate, name_popup, name_jukebox_popup };
+
+        const bufParams = buf.readVarInt();
+        for (let i = 0; i < bufParams; i++) parameters.push(buf.readString());
         break;
       }
     }
@@ -122,20 +113,18 @@ export class TextSerializer implements PacketSerializer<TextPacket> {
     type = TYPES[typeIndex] ?? typeIndex;
     const xuid = buf.readString();
     const platform_chat_id = buf.readString();
-    const has_filtered = buf.readBool();
-    const filtered_message = has_filtered ? buf.readString() : undefined;
+    const filtered_message = buf.readString();
 
     return {
       category,
       type,
-      needs_translation,
+      isLocalized,
       source_name,
       message,
       parameters,
       xuid,
       platform_chat_id,
-      filtered_message,
-      ...names,
+      filtered_message
     };
   }
 }
