@@ -1,20 +1,17 @@
+import { BufferReader } from "../BufferReader";
+import { BufferWriter } from "../BufferWriter";
 import {
   InventoryTransactionPacket,
   TransactionAction,
-  TransactionActionType,
   TransactionData,
   TransactionLegacy,
   TransactionReleaseData,
-  TransactionSourceType,
-  TransactionTrigger,
   TransactionType,
   TransactionUseItemData,
-  TransactionUseOnEntityData,
-  ItemStack,
+  TransactionUseOnEntityData
 } from "../packets/inventory_transaction";
-import { BufferReader } from "../BufferReader";
-import { BufferWriter } from "../BufferWriter";
 import { PacketSerializer } from "../PacketSerializer";
+import { readItem, writeItem } from "./shared_items";
 
 const TYPE_MAP: Record<number, TransactionType> = {
   0: "normal",
@@ -63,7 +60,7 @@ const RELEASE_INV: Record<string, number> = {
   consume: 1,
 };
 
-function writeBlockCoords(buf: BufferWriter, pos: { x: number; y: number; z: number }) {
+function writeBlockCoords(buf: BufferWriter, pos: { x: number; y: number; z: number; }) {
   buf.writeZigZag32(pos.x);
   buf.writeVarInt(pos.y);
   buf.writeZigZag32(pos.z);
@@ -72,35 +69,13 @@ function readBlockCoords(buf: BufferReader) {
   return { x: buf.readZigZag32(), y: buf.readVarInt(), z: buf.readZigZag32() };
 }
 
-function writeVec3(buf: BufferWriter, v: { x: number; y: number; z: number }) {
+function writeVec3(buf: BufferWriter, v: { x: number; y: number; z: number; }) {
   buf.writeFloatLE(v.x);
   buf.writeFloatLE(v.y);
   buf.writeFloatLE(v.z);
 }
 function readVec3(buf: BufferReader) {
   return { x: buf.readFloatLE(), y: buf.readFloatLE(), z: buf.readFloatLE() };
-}
-
-function writeItem(buf: BufferWriter, item: ItemStack) {
-  buf.writeZigZag32(item.network_id);
-  if (item.network_id === 0) return;
-  buf.writeUInt16LE(item.count ?? 0);
-  buf.writeVarInt(item.metadata ?? 0);
-  buf.writeZigZag32(item.block_runtime_id ?? 0);
-  const extra = item.extra ?? Buffer.alloc(0);
-  buf.writeVarInt(extra.length);
-  buf.writeBuffer(extra);
-}
-
-function readItem(buf: BufferReader): ItemStack {
-  const network_id = buf.readZigZag32();
-  if (network_id === 0) return { network_id };
-  const count = buf.readUInt16LE();
-  const metadata = buf.readVarInt();
-  const block_runtime_id = buf.readZigZag32();
-  const extraLen = buf.readVarInt();
-  const extra = buf.readBytes(extraLen);
-  return { network_id, count, metadata, block_runtime_id, extra };
 }
 
 function writeLegacy(buf: BufferWriter, legacy: TransactionLegacy) {

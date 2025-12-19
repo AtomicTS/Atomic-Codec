@@ -18,6 +18,13 @@ export class BufferReader {
 
   readBool() { this.ensure(1, "readBool"); return this.buf[this.offset++] === 1; }
 
+  readInt8() {
+    this.ensure(1, "readInt8");
+    const v = this.buf.readInt8(this.offset);
+    this.offset += 1;
+    return v;
+  }
+
   readUInt8() {
     this.ensure(1, "readUInt8");
     const v = this.buf.readUInt8(this.offset);
@@ -106,6 +113,30 @@ export class BufferReader {
     }
 
     throw new RangeError("readVarInt overflow");
+  }
+
+  readVarLong() {
+    let value = 0n;
+
+    for (let i = 0; i < 10; i++) {
+      let byte = this.buf[this.offset++] || 0;
+      value |= (BigInt(byte) & 0x7Fn) << (BigInt(i) * 7n);
+      if ((byte & 0x80) === 0) return value;
+    }
+
+    throw new Error("Varlong exceeds maximum size");
+  }
+
+  readZigZong() {
+    let value = this.readVarLong();
+    value = (value >> 1n) ^ (-(value & 1n));
+    return value;
+  }
+
+  readZigZag() {
+    let value = BigInt(this.readVarInt());
+    value = (value >> 1n) ^ (-(value & 1n));
+    return Number(value);
   }
 
   readZigZag32() {

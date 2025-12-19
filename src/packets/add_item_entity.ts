@@ -1,13 +1,9 @@
+import { ItemStack } from "./inventory_transaction";
+
 export interface AddItemEntityPacket {
-  entity_id_self: bigint;
-  runtime_entity_id: bigint;
-  item?: {
-    network_id: number;
-    count?: number;
-    metadata?: number;
-    block_runtime_id?: number;
-    extra?: Buffer;
-  };
+  uniqueId: bigint;
+  runtimeId: bigint;
+  item?: ItemStack;
   position?: { x: number; y: number; z: number; };
   motion?: { x: number; y: number; z: number; };
   from_fishing?: boolean;

@@ -8,11 +8,12 @@ export type TransactionUseOnEntityAction = "interact" | "attack" | number;
 export type TransactionReleaseAction = "release" | "consume" | number;
 
 export interface ItemStack {
-  network_id: number;
+  networkId: number;
   count?: number;
   metadata?: number;
-  block_runtime_id?: number;
-  extra?: Buffer;
+  itemStackId?: number | null;
+  networkBlockId?: number;
+  extras?: any;
 }
 
 export interface TransactionAction {
@@ -42,8 +43,8 @@ export interface TransactionUseItemData {
   face: number;
   hotbar_slot: number;
   held_item: ItemStack;
-  player_pos: { x: number; y: number; z: number };
-  click_pos: { x: number; y: number; z: number };
+  player_pos: { x: number; y: number; z: number; };
+  click_pos: { x: number; y: number; z: number; };
   block_runtime_id: number;
   client_prediction: "failure" | "success" | number;
 }
@@ -53,15 +54,15 @@ export interface TransactionUseOnEntityData {
   action_type: TransactionUseOnEntityAction;
   hotbar_slot: number;
   held_item: ItemStack;
-  player_pos: { x: number; y: number; z: number };
-  click_pos: { x: number; y: number; z: number };
+  player_pos: { x: number; y: number; z: number; };
+  click_pos: { x: number; y: number; z: number; };
 }
 
 export interface TransactionReleaseData {
   action_type: TransactionReleaseAction;
   hotbar_slot: number;
   held_item: ItemStack;
-  head_pos: { x: number; y: number; z: number };
+  head_pos: { x: number; y: number; z: number; };
 }
 
 export type TransactionData =

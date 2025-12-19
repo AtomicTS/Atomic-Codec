@@ -682,8 +682,8 @@ PacketRegistry.register<AddItemEntityPacket>(
   PACKET_IDS.add_item_entity,
   new AddItemEntitySerializer(),
   (params) => ({
-    entity_id_self: params.entity_id_self ?? 0n,
-    runtime_entity_id: params.runtime_entity_id ?? 0n,
+    uniqueId: params.entity_id_self ?? 0n,
+    runtimeId: params.runtime_entity_id ?? 0n,
     position: params.position ?? { x: 0, y: 0, z: 0 },
     motion: params.motion ?? { x: 0, y: 0, z: 0 },
     from_fishing: params.from_fishing ?? false,
@@ -875,7 +875,7 @@ PacketRegistry.register<MobArmorEquipmentPacket>(
   PACKET_IDS.mob_armor_equipment,
   new MobArmorEquipmentSerializer(),
   (params) => ({
-    runtime_entity_id: params.runtime_entity_id ?? 0n,
+    runtimeId: params.runtime_entity_id ?? 0n,
     helmet: params.helmet ?? { network_id: 0 },
     chestplate: params.chestplate ?? { network_id: 0 },
     leggings: params.leggings ?? { network_id: 0 },
@@ -1676,7 +1676,7 @@ PacketRegistry.register<MobArmorEquipmentPacket>(
   PACKET_IDS.mob_armor_equipment,
   new MobArmorEquipmentSerializer(),
   (params) => ({
-    runtime_entity_id: params.runtime_entity_id ?? 0n,
+    runtimeId: params.runtime_entity_id ?? 0n,
     helmet: params.helmet ?? { network_id: 0 },
     chestplate: params.chestplate ?? { network_id: 0 },
     leggings: params.leggings ?? { network_id: 0 },
