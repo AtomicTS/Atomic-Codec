@@ -1,5 +1,8 @@
 export class BufferReader {
   constructor(private buf: Buffer, private offset = 0) { }
+  getBuffer() {
+    return this.buf;
+  }
 
   remaining() {
     const rem = this.buf.length - this.offset;
@@ -12,8 +15,21 @@ export class BufferReader {
 
   private ensure(size: number, label: string) {
     if (this.offset < 0 || this.offset + size > this.buf.length) {
-      return;
+      throw new RangeError(`OOB in ${label}: offset=${this.offset} size=${size} len=${this.buf.length}`);
     }
+  }
+
+  read(length: number) {
+    this.ensure(length, "read");
+
+    const data = this.buf.subarray(this.offset, this.offset + length);
+    this.offset += length;
+    return data;
+  }
+
+  skip(bytes: number) {
+    this.ensure(bytes, "skip");
+    this.offset += bytes;
   }
 
   readBool() { this.ensure(1, "readBool"); return this.buf[this.offset++] === 1; }
@@ -214,5 +230,12 @@ export class BufferReader {
     }
 
     return arr;
+  }
+
+  readDoubleLE() {
+    this.ensure(8, "readDoubleLE");
+    const v = this.buf.readDoubleLE(this.offset);
+    this.offset += 8;
+    return v;
   }
 }

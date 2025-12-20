@@ -6,7 +6,6 @@ import type { AddVolumeEntityPacket } from "./packets/add_volume_entity";
 import type { AdventureSettingsPacket } from "./packets/adventure_settings";
 import type { AnimatePacket } from "./packets/animate";
 import type { AnimateEntityPacket } from "./packets/animate_entity";
-import type { AnvilDamagePacket } from "./packets/anvil_damage";
 import type { AvailableCommandsPacket } from "./packets/available_commands";
 import type { BlockEntityDataPacket } from "./packets/block_entity_data";
 import type { BlockEventPacket } from "./packets/block_event";
@@ -136,7 +135,6 @@ export interface Events {
   adventure_settings: (packet: AdventureSettingsPacket) => void;
   animate: (packet: AnimatePacket) => void;
   animate_entity: (packet: AnimateEntityPacket) => void;
-  anvil_damage: (packet: AnvilDamagePacket) => void;
   available_commands: (packet: AvailableCommandsPacket) => void;
   block_entity_data: (packet: BlockEntityDataPacket) => void;
   block_event: (packet: BlockEventPacket) => void;

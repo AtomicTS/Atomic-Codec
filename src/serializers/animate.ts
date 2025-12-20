@@ -6,14 +6,14 @@ import { PacketSerializer } from "../PacketSerializer";
 export class AnimateSerializer implements PacketSerializer<AnimatePacket> {
   encode(buf: BufferWriter, p: AnimatePacket) {
     buf.writeUInt8(p.type);
-    buf.writeVarInt64(p.actorRuntimeId);
+    buf.writeVarLong(p.actorRuntimeId);
     buf.writeFloatLE(p.data);
     buf.writeString(p.swingSourceType);
   }
 
   decode(buf: BufferReader): AnimatePacket {
     const type = buf.readUInt8();
-    const actorRuntimeId = buf.readVarInt64();
+    const actorRuntimeId = buf.readVarLong();
     const data = buf.readFloatLE();
     const swingSourceType = buf.readString() as AnimateSwingSourceType;
 

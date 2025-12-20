@@ -1,6 +1,6 @@
-import { AddPaintingPacket } from "../packets/add_painting";
 import { BufferReader } from "../BufferReader";
 import { BufferWriter } from "../BufferWriter";
+import { AddPaintingPacket } from "../packets/add_painting";
 import { PacketSerializer } from "../PacketSerializer";
 
 function readVec3(buf: BufferReader) {
@@ -9,21 +9,21 @@ function readVec3(buf: BufferReader) {
 
 export class AddPaintingSerializer implements PacketSerializer<AddPaintingPacket> {
   encode(buf: BufferWriter, p: AddPaintingPacket) {
-    buf.writeZigZag64(p.entity_id_self);
-    buf.writeVarInt64(p.runtime_entity_id);
-    buf.writeFloatLE(p.coordinates.x);
-    buf.writeFloatLE(p.coordinates.y);
-    buf.writeFloatLE(p.coordinates.z);
-    buf.writeZigZag32(p.direction);
-    buf.writeString(p.title);
+    buf.writeZigZong(p.uniqueId);
+    buf.writeZigZong(p.runtimeId);
+    buf.writeFloatLE(p.position.x);
+    buf.writeFloatLE(p.position.y);
+    buf.writeFloatLE(p.position.z);
+    buf.writeZigZag(p.direction);
+    buf.writeString(p.name);
   }
 
   decode(buf: BufferReader): AddPaintingPacket {
-    const entity_id_self = buf.readZigZag64();
-    const runtime_entity_id = buf.readVarInt64();
-    const coordinates = readVec3(buf);
-    const direction = buf.readZigZag32();
-    const title = buf.readString();
-    return { entity_id_self, runtime_entity_id, coordinates, direction, title };
+    const uniqueId = buf.readZigZong();
+    const runtimeId = buf.readZigZong();
+    const position = readVec3(buf);
+    const direction = buf.readZigZag();
+    const name = buf.readString();
+    return { uniqueId, runtimeId, position, direction, name };
   }
 }

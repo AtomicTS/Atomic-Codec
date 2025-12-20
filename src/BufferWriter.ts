@@ -20,6 +20,12 @@ export class BufferWriter {
     this.buf[this.offset++] = v ? 1 : 0;
   }
 
+  writeInt8(value: number) {
+    this.ensure(1);
+    this.buf.writeInt8(value, this.offset);
+    this.offset += 1;
+  }
+
   writeUInt8(v: number) {
     this.ensure(1);
     this.buf.writeUInt8(v, this.offset);
@@ -49,7 +55,6 @@ export class BufferWriter {
     this.buf.writeUInt16LE(v, this.offset);
     this.offset += 2;
   }
-
   writeInt16LE(v: number) {
     this.ensure(2);
     this.buf.writeInt16LE(v, this.offset);
@@ -91,6 +96,28 @@ export class BufferWriter {
     this.buf[this.offset++] = v;
   }
 
+  writeVarLong(value: bigint) {
+    value = value >> 0n;
+
+    this.ensure(10);
+
+    for (let i = 0; i < 10; i++) {
+      if (value >> 7n !== 0n) {
+        this.buf[this.offset++] = Number((value & 0x7Fn) | 0x80n);
+      } else {
+        this.buf[this.offset++] = Number(value & 0x7Fn);
+        break;
+      }
+    }
+
+    value >>= 7n;
+  }
+
+  writeZigZag(value: number) {
+    value = (value << 1) ^ (value >> 31);
+    this.writeVarInt(value);
+  }
+
   writeZigZag32(value: number) {
     const zz = (value << 1) ^ (value >> 31);
     this.writeVarInt(zz >>> 0);
@@ -105,6 +132,11 @@ export class BufferWriter {
     }
     this.ensure(1);
     this.buf[this.offset++] = Number(v);
+  }
+
+  writeZigZong(value: bigint) {
+    value = (value << 1n) ^ (value >> 63n);
+    this.writeVarLong(value);
   }
 
   writeZigZag64(value: bigint) {
@@ -147,5 +179,11 @@ export class BufferWriter {
 
   final() {
     return this.buf.subarray(0, this.offset);
+  }
+
+  writeDoubleLE(v: number) {
+    this.ensure(8);
+    this.buf.writeDoubleLE(v, this.offset);
+    this.offset += 8;
   }
 }

@@ -1,6 +1,6 @@
-import { AvailableCommandsPacket } from "../packets/available_commands";
 import { BufferReader } from "../BufferReader";
 import { BufferWriter } from "../BufferWriter";
+import { AvailableCommandsPacket } from "../packets/available_commands";
 import { PacketSerializer } from "../PacketSerializer";
 
 export class AvailableCommandsSerializer implements PacketSerializer<AvailableCommandsPacket> {
@@ -20,7 +20,7 @@ export class AvailableCommandsSerializer implements PacketSerializer<AvailableCo
       for (let i = 0; i < postfixCount; i++) postfixes.push(buf.readString());
 
       const enumCount = buf.readVarInt();
-      const enums: Array<{ name: string; values: number[] }> = [];
+      const enums: Array<{ name: string; values: number[]; }> = [];
       for (let i = 0; i < enumCount; i++) {
         const name = buf.readString();
         const count = buf.readVarInt();

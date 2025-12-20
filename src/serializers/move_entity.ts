@@ -1,6 +1,6 @@
-import { MoveEntityPacket } from "../packets/move_entity";
 import { BufferReader } from "../BufferReader";
 import { BufferWriter } from "../BufferWriter";
+import { MoveEntityPacket } from "../packets/move_entity";
 import { PacketSerializer } from "../PacketSerializer";
 
 function readVec3(buf: BufferReader) {
@@ -14,9 +14,9 @@ export class MoveEntitySerializer implements PacketSerializer<MoveEntityPacket> 
     buf.writeFloatLE(p.position.x);
     buf.writeFloatLE(p.position.y);
     buf.writeFloatLE(p.position.z);
-    buf.writeUInt8(p.rotation.yaw);
-    buf.writeUInt8(p.rotation.pitch);
-    buf.writeUInt8(p.rotation.head_yaw);
+    buf.writeInt8(p.rotation.yaw);
+    buf.writeInt8(p.rotation.pitch);
+    buf.writeInt8(p.rotation.head_yaw);
   }
 
   decode(buf: BufferReader): MoveEntityPacket {
@@ -24,9 +24,9 @@ export class MoveEntitySerializer implements PacketSerializer<MoveEntityPacket> 
     const flags = buf.readUInt8();
     const position = readVec3(buf);
     const rotation = {
-      yaw: buf.readUInt8(),
-      pitch: buf.readUInt8(),
-      head_yaw: buf.readUInt8(),
+      yaw: buf.readInt8() * (360 / 256),
+      pitch: buf.readInt8() * (360 / 256),
+      head_yaw: buf.readInt8() * (360 / 256),
     };
 
     return { runtime_entity_id, flags, position, rotation };

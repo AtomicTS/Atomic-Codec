@@ -29,8 +29,6 @@ export class AddEntitySerializer implements PacketSerializer<AddEntityPacket> {
       buf.writeFloatLE(a.max);
       buf.writeFloatLE(a.value);
     }
-    buf.writeBuffer(p.metadata_raw ?? Buffer.from([0xff]));
-    if (p.entity_links_raw) buf.writeBuffer(p.entity_links_raw);
   }
 
   decode(buf: BufferReader): AddEntityPacket {
@@ -50,8 +48,6 @@ export class AddEntitySerializer implements PacketSerializer<AddEntityPacket> {
       const value = buf.readFloatLE();
       attributes.push({ name, min, max, value });
     }
-    const remainder = buf.remaining() > 0 ? buf.readBytes(buf.remaining()) : Buffer.alloc(0);
-    const raw = remainder;
 
     return {
       unique_entity_id,
@@ -61,9 +57,7 @@ export class AddEntitySerializer implements PacketSerializer<AddEntityPacket> {
       motion,
       rotation,
       head_rotation,
-      attributes,
-      metadata_raw: remainder,
-      raw,
+      attributes
     };
   }
 }

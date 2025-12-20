@@ -8,6 +8,4 @@ export interface AddEntityPacket {
   head_rotation: number;
   attributes?: Array<{ name: string; min: number; max: number; value: number; }>;
   metadata_raw?: Buffer;
-  entity_links_raw?: Buffer;
-  raw?: Buffer;
 }

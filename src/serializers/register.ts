@@ -1,13 +1,13 @@
+import { CommandPermissionLevel } from "../enums/CommandPermissionLevel";
 import { PacketRegistry } from "../PacketRegistry";
 import { AddEntityPacket } from "../packets/add_entity";
 import { AddItemEntityPacket } from "../packets/add_item_entity";
 import { AddPaintingPacket } from "../packets/add_painting";
-import { AddPlayerPacket } from "../packets/add_player";
+import { AddPlayerPacket, DeviceOS, Gamemode, PermissionLevel } from "../packets/add_player";
 import { AddVolumeEntityPacket } from "../packets/add_volume_entity";
 import { AdventureSettingsPacket } from "../packets/adventure_settings";
 import { AnimatePacket } from "../packets/animate";
 import { AnimateEntityPacket } from "../packets/animate_entity";
-import { AnvilDamagePacket } from "../packets/anvil_damage";
 import { AvailableCommandsPacket } from "../packets/available_commands";
 import { BlockEntityDataPacket } from "../packets/block_entity_data";
 import { BlockEventPacket } from "../packets/block_event";
@@ -134,7 +134,7 @@ import { AddPaintingSerializer } from "./add_painting";
 import { AddPlayerSerializer } from "./add_player";
 import { AdventureSettingsSerializer } from "./adventure_settings";
 import { AnimateSerializer } from "./animate";
-import { AnvilDamageSerializer } from "./anvil_damage";
+import { AnimateEntitySerializer } from "./animate_entity";
 import { AvailableCommandsSerializer } from "./available_commands";
 import { BlockEntityDataSerializer } from "./block_entity_data";
 import { BlockEventSerializer } from "./block_event";
@@ -647,11 +647,24 @@ PacketRegistry.register<AddPlayerPacket>(
   (params) => ({
     uuid: params.uuid ?? "00000000-0000-0000-0000-000000000000",
     username: params.username ?? "",
-    runtime_entity_id: params.runtime_entity_id ?? 0n,
+    runtimeId: params.runtime_entity_id ?? 0n,
     platform_chat_id: params.platform_chat_id ?? "",
     position: params.position ?? { x: 0, y: 0, z: 0 },
-    motion: params.motion ?? { x: 0, y: 0, z: 0 },
-    rotation: params.rotation ?? { x: 0, y: 0, z: 0 },
+    velocity: params.motion ?? { x: 0, y: 0, z: 0 },
+    pitch: params.pitch ?? 0,
+    yaw: params.yaw ?? 0,
+    headYaw: params.headYaw ?? 0,
+    heldItem: params.heldItem ?? {},
+    gamemode: params.gamemode ?? Gamemode.Survival,
+    data: params.data ?? {},
+    properties: params.properties ?? {},
+    uniqueEntityId: params.uniqueEntityId ?? 0n,
+    permissionLevel: params.permissionLevel ?? PermissionLevel.Member,
+    commandPermission: params.commandPermission ?? CommandPermissionLevel.Any,
+    abilities: params.abilities ?? {},
+    deviceId: params.deviceId ?? "00000000-0000-0000-0000-000000000000",
+    deviceOS: params.deviceOS ?? DeviceOS.Undefined,
+    links: params.links ?? {}
   }),
 );
 
@@ -765,11 +778,11 @@ PacketRegistry.register<AddPaintingPacket>(
   PACKET_IDS.add_painting,
   new AddPaintingSerializer(),
   (params) => ({
-    entity_id_self: params.entity_id_self ?? 0n,
-    runtime_entity_id: params.runtime_entity_id ?? 0n,
-    coordinates: params.coordinates ?? { x: 0, y: 0, z: 0 },
+    uniqueId: params.uniqueId ?? 0n,
+    runtimeId: params.runtimeId ?? 0n,
+    position: params.position ?? { x: 0, y: 0, z: 0 },
     direction: params.direction ?? 0,
-    title: params.title ?? "",
+    name: params.name ?? "",
   }),
 );
 
@@ -824,8 +837,8 @@ PacketRegistry.register<EntityEventPacket>(
   PACKET_IDS.entity_event,
   new EntityEventSerializer(),
   (params) => ({
-    runtime_entity_id: params.runtime_entity_id ?? 0n,
-    event_id: params.event_id ?? 0,
+    entityRuntimeId: params.entityRuntimeId ?? 0n,
+    event: params.event ?? 0,
     data: params.data ?? 0,
   }),
 );
@@ -1498,8 +1511,16 @@ PacketRegistry.register<MotionPredictionHintsPacket>(
 PacketRegistry.register<AnimateEntityPacket>(
   "animate_entity",
   PACKET_IDS.animate_entity,
-  new RawPassthroughSerializer(),
-  (params) => ({ raw: params.raw ?? Buffer.alloc(0) }),
+  new AnimateEntitySerializer(),
+  (params) => ({
+    animation: params.animation ?? "",
+    blendOutTime: params.blendOutTime ?? 0,
+    controller: params.controller ?? "",
+    entityRuntimeIds: params.entityRuntimeIds ?? [],
+    nextState: params.nextState ?? "",
+    stopExpression: params.stopExpression ?? "",
+    stopExpressionversion: params.stopExpressionversion ?? 0
+  }),
 );
 
 PacketRegistry.register<CameraShakePacket>(
@@ -1831,16 +1852,6 @@ PacketRegistry.register<SettingsCommandPacket>(
   (params) => ({
     command_line: params.command_line ?? "",
     suppress_output: params.suppress_output ?? false,
-  }),
-);
-
-PacketRegistry.register<AnvilDamagePacket>(
-  "anvil_damage",
-  PACKET_IDS.anvil_damage,
-  new AnvilDamageSerializer(),
-  (params) => ({
-    damage: params.damage ?? 0,
-    position: params.position ?? { x: 0, y: 0, z: 0 },
   }),
 );
 
