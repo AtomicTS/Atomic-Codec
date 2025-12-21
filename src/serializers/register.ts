@@ -13,12 +13,8 @@ import { BlockEntityDataPacket } from "../packets/block_entity_data";
 import { BlockEventPacket } from "../packets/block_event";
 import { BlockPickRequestPacket } from "../packets/block_pick_request";
 import { BossEventPacket } from "../packets/boss_event";
-import { CameraPacket } from "../packets/camera";
-import { CameraShakePacket } from "../packets/camera_shake";
 import { ChangeDimensionPacket } from "../packets/change_dimension";
 import { ChunkRadiusUpdatePacket } from "../packets/chunk_radius_update";
-import { ClientCacheBlobStatusPacket } from "../packets/client_cache_blob_status";
-import { ClientCacheMissResponsePacket } from "../packets/client_cache_miss_response";
 import { ClientCacheStatusPacket } from "../packets/client_cache_status";
 import { ClientToServerHandshakePacket } from "../packets/client_to_server_handshake";
 import { ClientboundMapItemDataPacket } from "../packets/clientbound_map_item_data";
@@ -139,6 +135,7 @@ import { AvailableCommandsSerializer } from "./available_commands";
 import { BlockEntityDataSerializer } from "./block_entity_data";
 import { BlockEventSerializer } from "./block_event";
 import { BlockPickRequestSerializer } from "./block_pick_request";
+import { BosseventSerializer } from "./boss_event";
 import { ChangeDimensionSerializer } from "./change_dimension";
 import { ChunkRadiusUpdateSerializer } from "./chunk_radius_update";
 import { ClientCacheStatusSerializer } from "./client_cache_status";
@@ -913,10 +910,11 @@ PacketRegistry.register<BlockPickRequestPacket>(
   PACKET_IDS.block_pick_request,
   new BlockPickRequestSerializer(),
   (params) => ({
+    addData: params.addData ?? false,
+    selectedSlot: params.selectedSlot ?? 0,
     x: params.x ?? 0,
     y: params.y ?? 0,
-    z: params.z ?? 0,
-    add_user_data: params.add_user_data ?? false,
+    z: params.z ?? 0
   }),
 );
 
@@ -1122,11 +1120,11 @@ PacketRegistry.register<CraftingDataPacket>(
   PACKET_IDS.crafting_data,
   new CraftingDataSerializer(),
   (params) => ({
-    recipes: params.recipes ?? [],
-    potion_type_recipes: params.potion_type_recipes ?? [],
-    potion_container_recipes: params.potion_container_recipes ?? [],
-    material_reducers: params.material_reducers ?? [],
-    clear_recipes: params.clear_recipes ?? false,
+    clearRecipes: false,
+    containers: params.containers ?? [],
+    crafting: params.crafting ?? [],
+    materialReducers: params.materialReducers ?? [],
+    potions: params.potions ?? []
   }),
 );
 
@@ -1278,14 +1276,15 @@ PacketRegistry.register<AvailableCommandsPacket>(
   PACKET_IDS.available_commands,
   new AvailableCommandsSerializer(),
   (params) => ({
-    values_len: params.values_len ?? 0,
-    enum_values: params.enum_values ?? [],
-    postfixes: params.postfixes ?? [],
-    enums: params.enums ?? [],
+    chained_subcommand_values: params.chained_subcommand_values ?? [],
+    chained_subcommands: params.chained_subcommands ?? [],
     commands: params.commands ?? [],
-    dynamic_enums: params.dynamic_enums ?? {},
     constraints: params.constraints ?? [],
-    raw: params.raw,
+    enum_values: params.enum_values ?? [],
+    enums: params.enums ?? [],
+    soft_enums: params.soft_enums ?? [],
+    suffixes: params.suffixes ?? [],
+    raw: params.raw
   }),
 );
 
@@ -1293,7 +1292,18 @@ PacketRegistry.register<CommandBlockUpdatePacket>(
   "command_block_update",
   PACKET_IDS.command_block_update,
   new CommandBlockUpdateSerializer(),
-  (params) => ({ raw: params.raw ?? Buffer.alloc(0) }),
+  (params) => ({
+    command: params.command ?? "",
+    customName: params.customName ?? "",
+    filteredName: params.filteredName ?? "",
+    trackOutput: params.trackOutput ?? false,
+    tickDelay: params.tickDelay ?? 0,
+    executeFirstTick: params.executeFirstTick ?? false,
+    entityRuntimeId: params.entityRuntimeId ?? BigInt(0),
+    isBlock: params.isBlock ?? false,
+    lastOutput: params.lastOutput ?? "",
+    settings: params.settings ?? null
+  }),
 );
 
 PacketRegistry.register<CommandOutputPacket>(
@@ -1523,13 +1533,6 @@ PacketRegistry.register<AnimateEntityPacket>(
   }),
 );
 
-PacketRegistry.register<CameraShakePacket>(
-  "camera_shake",
-  PACKET_IDS.camera_shake,
-  new RawPassthroughSerializer(),
-  (params) => ({ raw: params.raw ?? Buffer.alloc(0) }),
-);
-
 PacketRegistry.register<PlayerFogPacket>(
   "player_fog",
   PACKET_IDS.player_fog,
@@ -1600,19 +1603,6 @@ PacketRegistry.register<GameRulesChangedPacket>(
   (params) => ({ raw: params.raw ?? Buffer.alloc(0) }),
 );
 
-PacketRegistry.register<ClientCacheBlobStatusPacket>(
-  "client_cache_blob_status",
-  PACKET_IDS.client_cache_blob_status,
-  new RawPassthroughSerializer(),
-  (params) => ({ raw: params.raw ?? Buffer.alloc(0) }),
-);
-
-PacketRegistry.register<ClientCacheMissResponsePacket>(
-  "client_cache_miss_response",
-  PACKET_IDS.client_cache_miss_response,
-  new RawPassthroughSerializer(),
-  (params) => ({ raw: params.raw ?? Buffer.alloc(0) }),
-);
 PacketRegistry.register<CodeBuilderSourcePacket>(
   "code_builder_source",
   PACKET_IDS.code_builder_source ?? 178,
@@ -1731,18 +1721,16 @@ PacketRegistry.register<MapInfoRequestPacket>(
   (params) => ({ map_id: params.map_id ?? 0n, client_pixels: params.client_pixels ?? [] }),
 );
 
-PacketRegistry.register<CameraPacket>(
-  "camera",
-  PACKET_IDS.camera,
-  new RawPassthroughSerializer(),
-  (params) => ({ raw: params.raw ?? Buffer.alloc(0) }),
-);
-
 PacketRegistry.register<BossEventPacket>(
   "boss_event",
   PACKET_IDS.boss_event,
-  new RawPassthroughSerializer(),
-  (params) => ({ raw: params.raw ?? Buffer.alloc(0) }),
+  new BosseventSerializer(),
+  (params) => ({
+    add: params.add ?? null,
+    targetUniqueId: params.targetUniqueId ?? BigInt(0),
+    type: params.type ?? 0,
+    update: params.type ?? null
+  }),
 );
 
 PacketRegistry.register<ShowCreditsPacket>(

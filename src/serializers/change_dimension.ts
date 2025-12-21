@@ -1,29 +1,24 @@
-import { ChangeDimensionPacket } from "../packets/change_dimension";
 import { BufferReader } from "../BufferReader";
 import { BufferWriter } from "../BufferWriter";
 import { PacketSerializer } from "../PacketSerializer";
+import { DimensionType } from "../enums/DimensionType";
+import { ChangeDimensionPacket } from "../packets/change_dimension";
+import { Vector3 } from "../types/Vector3";
 
 export class ChangeDimensionSerializer implements PacketSerializer<ChangeDimensionPacket> {
   encode(buf: BufferWriter, p: ChangeDimensionPacket) {
-    buf.writeZigZag32(p.dimension);
-    buf.writeFloatLE(p.position.x);
-    buf.writeFloatLE(p.position.y);
-    buf.writeFloatLE(p.position.z);
+    buf.writeZigZag(Object.values(DimensionType).indexOf(p.dimension));
+    Vector3.write(buf, p.position);
     buf.writeBool(p.respawn);
-    if (p.loading_screen_id !== undefined && p.loading_screen_id !== null) {
-      buf.writeBool(true);
-      buf.writeInt32LE(p.loading_screen_id);
-    } else {
-      buf.writeBool(false);
-    }
+    buf.writeBool(p.hasLoadingScreen ?? false);
   }
 
   decode(buf: BufferReader): ChangeDimensionPacket {
-    const dimension = buf.readZigZag32();
-    const position = { x: buf.readFloatLE(), y: buf.readFloatLE(), z: buf.readFloatLE() };
+    const dimension = DimensionType[buf.readZigZag()];
+    const position = Vector3.read(buf);
     const respawn = buf.readBool();
-    const hasLoading = buf.readBool();
-    const loading_screen_id = hasLoading ? Number(buf.readInt32LE()) : undefined;
-    return { dimension, position, respawn, loading_screen_id };
+    const hasLoadingScreen = buf.readBool();
+
+    return { dimension, position, respawn, hasLoadingScreen };
   }
 }

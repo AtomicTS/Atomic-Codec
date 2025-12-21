@@ -21,7 +21,7 @@ export function writeItem(buf: BufferWriter, item: ItemStack) {
 }
 
 export function readItem(buf: BufferReader): ItemStack {
-  const networkId = buf.readZigZag32();
+  const networkId = buf.readZigZag();
   if (networkId === 0) return { networkId };
 
   const count = buf.readUInt16LE();
@@ -31,8 +31,6 @@ export function readItem(buf: BufferReader): ItemStack {
   const networkBlockId = buf.readZigZag32();
 
   const length = buf.readVarInt();
-  const extras = length > 0 ? {
-
-  } : null;
+  const extras = length > 0 ? (buf.skip(length), null) : null;
   return { networkId, count, metadata, itemStackId, networkBlockId, extras };
 }

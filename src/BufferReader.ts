@@ -197,10 +197,22 @@ export class BufferReader {
 
   readUuid() {
     this.ensure(16, "readUuid");
-    const slice = this.buf.subarray(this.offset, this.offset + 16);
-    this.offset += 16;
-    const hex = slice.toString("hex");
-    return `${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}`;
+    const msb = this.read(8).reverse();
+    const lsb = this.read(8).reverse();
+
+    const uuid = Buffer.concat([msb, lsb]).toString("hex");
+
+    return (
+      uuid.slice(0, 8) +
+      "-" +
+      uuid.slice(8, 12) +
+      "-" +
+      uuid.slice(12, 16) +
+      "-" +
+      uuid.slice(16, 20) +
+      "-" +
+      uuid.slice(20)
+    );
   }
 
   readInt64LE() {

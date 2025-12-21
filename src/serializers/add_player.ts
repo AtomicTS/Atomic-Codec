@@ -6,11 +6,8 @@ import { AbilityLayer } from "../types/AbilityLayer";
 import { DataItem } from "../types/DataItem";
 import { EntityLinkSet } from "../types/EntityLinkSet";
 import { PropertySyncData } from "../types/PropertySyncData";
+import { Vector3 } from "../types/Vector3";
 import { readItem } from "./shared_items";
-
-function readVec3(buf: BufferReader) {
-  return { x: buf.readFloatLE(), y: buf.readFloatLE(), z: buf.readFloatLE() };
-}
 
 export class AddPlayerSerializer implements PacketSerializer<AddPlayerPacket> {
   encode(buf: BufferWriter, p: AddPlayerPacket) {
@@ -34,8 +31,8 @@ export class AddPlayerSerializer implements PacketSerializer<AddPlayerPacket> {
     const username = buf.readString();
     const runtimeId = buf.readVarLong();
     const platform_chat_id = buf.readString();
-    const position = readVec3(buf);
-    const velocity = readVec3(buf);
+    const position = Vector3.read(buf);
+    const velocity = Vector3.read(buf);
     const pitch = buf.readFloatLE();
     const yaw = buf.readFloatLE();
     const headYaw = buf.readFloatLE();

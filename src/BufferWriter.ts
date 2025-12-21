@@ -158,11 +158,15 @@ export class BufferWriter {
     this.writeBuffer(bytes);
   }
 
-  writeUuid(uuid: string) {
-    const hex = uuid.replace(/-/g, "");
-    const buf = Buffer.from(hex, "hex");
-    if (buf.length !== 16) throw new Error("Invalid UUID");
-    this.writeBuffer(buf);
+  writeUuid(value: string) {
+    const uuid = value.replace(/-/g, "");
+    const bytes = Buffer.from(uuid, "hex");
+
+    const msb = bytes.subarray(0, 8);
+    const lsb = bytes.subarray(0, 16);
+
+    this.writeBuffer(msb.reverse());
+    this.writeBuffer(lsb.reverse());
   }
 
   writeInt64LE(v: bigint) {

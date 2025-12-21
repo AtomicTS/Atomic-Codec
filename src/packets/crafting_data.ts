@@ -1,8 +1,7 @@
 export interface CraftingDataPacket {
-  recipes: Buffer[];
-  potion_type_recipes: Buffer[];
-  potion_container_recipes: Buffer[];
-  material_reducers: Buffer[];
-  clear_recipes: boolean;
-  raw?: Buffer;
+  crafting: Array<any>,
+  potions: Array<any>,
+  containers: Array<any>,
+  materialReducers: Array<any>,
+  clearRecipes: boolean;
 }
