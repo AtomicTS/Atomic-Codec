@@ -97,20 +97,19 @@ export class BufferWriter {
   }
 
   writeVarLong(value: bigint) {
-    value = value >> 0n;
-
     this.ensure(10);
 
+    let v = value;
+
     for (let i = 0; i < 10; i++) {
-      if (value >> 7n !== 0n) {
-        this.buf[this.offset++] = Number((value & 0x7Fn) | 0x80n);
+      if ((v >> 7n) !== 0n) {
+        this.buf[this.offset++] = Number((v & 0x7Fn) | 0x80n);
+        v >>= 7n;
       } else {
-        this.buf[this.offset++] = Number(value & 0x7Fn);
+        this.buf[this.offset++] = Number(v & 0x7Fn);
         break;
       }
     }
-
-    value >>= 7n;
   }
 
   writeZigZag(value: number) {
@@ -163,10 +162,10 @@ export class BufferWriter {
     const bytes = Buffer.from(uuid, "hex");
 
     const msb = bytes.subarray(0, 8);
-    const lsb = bytes.subarray(0, 16);
+    const lsb = bytes.subarray(8, 16);
 
-    this.writeBuffer(msb.reverse());
-    this.writeBuffer(lsb.reverse());
+    this.writeBuffer(Buffer.from(msb).reverse());
+    this.writeBuffer(Buffer.from(lsb).reverse());
   }
 
   writeInt64LE(v: bigint) {

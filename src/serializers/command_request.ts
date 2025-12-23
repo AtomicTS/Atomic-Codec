@@ -5,12 +5,16 @@ import { PacketSerializer } from "../PacketSerializer";
 
 export class CommandRequestSerializer implements PacketSerializer<CommandRequestPacket> {
   encode(buf: BufferWriter, p: CommandRequestPacket) {
+    if (p.command.length > 512) {
+      throw new Error("Command exceeds max size of 512 characters.");
+    }
     buf.writeString(p.command);
 
     // CommandOrigin
-    buf.writeString("player");
+    buf.writeString("Player");
     buf.writeUuid(p.uuid);
     buf.writeString(p.requestId);
+    buf.writeInt64LE(p.playerEntityId);
 
     buf.writeBool(p.internal);
     buf.writeString("latest");
