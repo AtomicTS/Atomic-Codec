@@ -11,7 +11,6 @@ export class CommandRequestSerializer implements PacketSerializer<CommandRequest
     buf.writeString("player");
     buf.writeUuid(p.uuid);
     buf.writeString(p.requestId);
-    buf.writeInt64LE(p.playerEntityId);
 
     buf.writeBool(p.internal);
     buf.writeString("latest");
